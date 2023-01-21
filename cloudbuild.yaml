@@ -1,0 +1,65 @@
+steps:
+
+  # Install dependencies
+  - name: 'python:3.10-slim'
+    id: Install dependencies
+    entrypoint: 'bash'
+    args: ['./scripts/install-dependencies.sh']
+
+  # Run unit tests
+  - name: 'python:3.10-slim'
+    id: Run unit tests
+    entrypoint: 'bash'
+    args: ['./scripts/run-unit-tests.sh']
+    env:
+      - 'SHORT_SHA=${SHORT_SHA}'
+
+  # Create Artifact Registry Repo
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Create Artifact Registry repo
+    entrypoint: 'bash'
+    args: ['./scripts/create-artifact-registry-repo.sh']
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'LOCATION=${LOCATION}'
+
+  # Docker Build
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Docker build
+    entrypoint: 'bash'
+    args: ['./scripts/docker-build.sh']
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'LOCATION=${LOCATION}'
+      - 'SHORT_SHA=${SHORT_SHA}'
+
+  # Docker push to Google Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push Docker image to Artifact Registry repo
+    entrypoint: 'bash'
+    args: ['./scripts/push-docker-image-to-artifact-registry-repo.sh'] # ['./scritps/push-docker-image-to-artifact-registry-repo.sh']
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'LOCATION=${LOCATION}'
+      - 'SHORT_SHA=${SHORT_SHA}'
+
+  # Deploy to Cloud Run
+  - name: google/cloud-sdk
+    id: Deploy to Cloud Run
+    entrypoint: 'bash'
+    args: ['./scripts/deploy-to-cloud-run.sh']
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'LOCATION=${LOCATION}'
+      - 'SHORT_SHA=${SHORT_SHA}'
+
+# Save test logs to Google Cloud Storage
+artifacts:
+  objects:
+    location: gs://docker-flask-locust-gcp/
+    paths:
+      - sample-webapp/${SHORT_SHA}_test_log.xml
+
+# Store images in Google Artifact Registry 
+images:
+  - ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/docker-flask-locust-gcp/sample-webapp:${SHORT_SHA}
