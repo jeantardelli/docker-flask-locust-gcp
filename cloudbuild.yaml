@@ -25,7 +25,7 @@ steps:
 
   # Docker Build
   - name: 'gcr.io/cloud-builders/docker'
-    id: Docker build
+    id: Docker build app sample
     entrypoint: 'bash'
     args: ['./scripts/docker-build.sh']
     env:
@@ -35,9 +35,9 @@ steps:
 
   # Docker push to Google Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    id: Push Docker image to Artifact Registry repo
+    id: Push Docker app image to Artifact Registry repo
     entrypoint: 'bash'
-    args: ['./scripts/push-docker-image-to-artifact-registry-repo.sh'] # ['./scritps/push-docker-image-to-artifact-registry-repo.sh']
+    args: ['./scripts/push-docker-image-to-artifact-registry-repo.sh']
     env:
       - 'PROJECT_ID=${PROJECT_ID}'
       - 'LOCATION=${LOCATION}'
@@ -53,6 +53,26 @@ steps:
       - 'LOCATION=${LOCATION}'
       - 'SHORT_SHA=${SHORT_SHA}'
 
+  # Docker Build
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Docker build locust sample
+    entrypoint: 'bash'
+    args: ['./scripts/docker-build-locust.sh']
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'LOCATION=${LOCATION}'
+      - 'SHORT_SHA=${SHORT_SHA}'
+
+  # Docker push to Google Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push Docker locust image to Artifact Registry repo
+    entrypoint: 'bash'
+    args: ['./scripts/push-docker-locust-image-to-artifact-registry-repo.sh']
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'LOCATION=${LOCATION}'
+      - 'SHORT_SHA=${SHORT_SHA}'
+
 # Save test logs to Google Cloud Storage
 artifacts:
   objects:
@@ -63,3 +83,4 @@ artifacts:
 # Store images in Google Artifact Registry 
 images:
   - ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/docker-flask-locust-gcp/sample-webapp:${SHORT_SHA}
+  - ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/docker-flask-locust-gcp/locust-image:${SHORT_SHA}
