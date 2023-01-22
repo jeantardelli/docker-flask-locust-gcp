@@ -21,7 +21,7 @@ spec:
             - name: LOCUST_MODE
               value: master
             - name: TARGET_HOST
-              value: https://${SAMPLE_APP_TARGET}
+              value: ${TARGET_APP}
           ports:
             - name: loc-master-web
               containerPort: 8089

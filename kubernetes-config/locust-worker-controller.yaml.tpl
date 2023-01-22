@@ -23,4 +23,4 @@ spec:
             - name: LOCUST_MASTER
               value: locust-master
             - name: TARGET_HOST
-              value: https://${SAMPLE_APP_TARGET}
+              value: ${TARGET_APP}

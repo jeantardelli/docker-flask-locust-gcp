@@ -73,6 +73,16 @@ steps:
       - 'LOCATION=${LOCATION}'
       - 'SHORT_SHA=${SHORT_SHA}'
 
+  # Create GKE Cluster
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Create GKE cluster
+    entrypoint: 'bash'
+    args: ['./scripts/create-gke-cluster.sh']
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'LOCATION=${LOCATION}'
+
+
 # Save test logs to Google Cloud Storage
 artifacts:
   objects:
